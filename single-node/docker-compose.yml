@@ -3,7 +3,7 @@ services:
   wazuh.manager:
     image: wazuh/wazuh-manager:4.14.5
     hostname: wazuh.manager
-    restart: always
+    restart: on-failure
     ulimits:
       memlock:
         soft: -1
