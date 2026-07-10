@@ -1,0 +1,64 @@
+name: Deploy Wazuh via Ansible
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Run Ansible Playbook
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install --upgrade pip
+          if [ -f playbooks/requirements.txt ]; then
+            pip install -r playbooks/requirements.txt
+          fi
+
+      - name: Set up SSH Private Key (Optional)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if [ -n "$SSH_PRIVATE_KEY" ]; then
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+          fi
+
+      - name: Run Ansible Playbook
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          if [ -z "$ANSIBLE_VAULT_PASSWORD" ]; then
+            echo "Error: ANSIBLE_VAULT_PASSWORD secret is not set."
+            exit 1
+          fi
+          
+          # Write the vault password to a temporary file
+          echo "$ANSIBLE_VAULT_PASSWORD" > .vault_pass
+          chmod 600 .vault_pass
+
+          # Activate virtual environment and run the playbook using the vault password file
+          source .venv/bin/activate
+          ansible-playbook -i playbooks/inventory.ini playbooks/playbook.yml --vault-password-file .vault_pass
+
+      - name: Clean up Vault Password File
+        if: always()
+        run: |
+          if [ -f .vault_pass ]; then
+            rm -f .vault_pass
+          fi
