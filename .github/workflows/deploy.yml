@@ -29,7 +29,7 @@ jobs:
             pip install -r playbooks/requirements.txt
           fi
 
-      - name: Set up SSH Private Key (Optional)
+      - name: Set up SSH Private Key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
