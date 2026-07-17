@@ -1,0 +1,87 @@
+<!-- WebApp decoder - Lab 2 -->
+<decoder name="webapp">
+  <program_name>^WEBAPP$</program_name>
+</decoder>
+
+<decoder name="webapp-details">
+  <parent>webapp</parent>
+  <regex>user=(\S+) action=(\S+) src=(\S+) status=(\S+)</regex>
+  <order>user, action, srcip, app_status</order>
+</decoder>
+
+<!-- Disable barracuda-svf-admin (conflicts with WEBAPP) -->
+<decoder name="barracuda-svf-admin">
+  <program_name>^BARRACUDA_NOMATCH_DISABLED$</program_name>
+</decoder>
+
+<!-- Zeek decoder - Lab 3 -->
+<decoder name="zeek">
+  <prematch>{"_path":</prematch>
+</decoder>
+
+<decoder name="zeek-conn">
+  <parent>zeek</parent>
+  <use_own_name>true</use_own_name>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>
+
+<!-- ModSecurity decoder - Lab 6 -->
+<decoder name="modsecurity">
+  <prematch>ModSecurity: </prematch>
+</decoder>
+
+<!-- ============ RESOURCE MONITORING DECODERS ============ -->
+<decoder name="resource_metrics">
+  <prematch>ossec: output: 'resource_metrics':</prematch>
+</decoder>
+<decoder name="resource_metrics">
+  <parent>resource_metrics</parent>
+  <regex offset="after_parent">(\S+) (\S+) (\S+) (\S+) (\S+)</regex>
+  <order>cpu_usage_%, memory_usage_%, disk_usage_%, load_1min, load_5min</order>
+</decoder>
+<decoder name="disk_metrics">
+  <prematch>ossec: output: 'disk_metrics':</prematch>
+</decoder>
+<decoder name="disk_metrics">
+  <parent>disk_metrics</parent>
+  <regex offset="after_parent">(\S+) (\S+)</regex>
+  <order>disk_used_gb, disk_free_gb</order>
+</decoder>
+<!-- COWRIE -->
+<decoder name="cowrie">
+  <prematch>{"eventid": "cowrie\.</prematch>
+</decoder>
+<!-- DIONAEA -->
+<decoder name="dionaea">
+  <prematch>{"origin": "dionaea</prematch>
+</decoder>
+<!-- HONEYTRAP -->
+<decoder name="honeytrap">
+  <prematch>{"type": "|{"remote_addr": "</prematch>
+</decoder>
+<!-- HERALDING -->
+<decoder name="heralding">
+  <prematch>{"auth_id": "</prematch>
+</decoder>
+<!-- WORDPOT -->
+<decoder name="wordpot">
+  <prematch>{"path": "|{"plugin": "</prematch>
+</decoder>
+<!-- CONPOT -->
+<decoder name="conpot">
+  <prematch>conpot|CONPOT</prematch>
+</decoder>
+<decoder name="conpot">
+  <parent>conpot</parent>
+  <regex>(\d+\.\d+\.\d+\.\d+):(\d+)</regex>
+  <order>src_ip, src_port</order>
+</decoder>
+<!-- REDIS -->
+<decoder name="redishoneypot">
+  <prematch>redishoneypot|redis-honeypot</prematch>
+</decoder>
+<decoder name="redishoneypot">
+  <parent>redishoneypot</parent>
+  <regex>connection from (\d+\.\d+\.\d+\.\d+)</regex>
+  <order>src_ip</order>
+</decoder>

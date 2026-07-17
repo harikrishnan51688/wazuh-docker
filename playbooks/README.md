@@ -68,18 +68,18 @@ If you need to store sensitive values such as passwords or tokens, you can use A
 Create an encrypted file:
 
 ```bash
-ansible-vault create vars.yml
+ansible-vault create group_vars/docker_servers/vault.yml
 ```
 
 Edit an existing encrypted file:
 
 ```bash
-ansible-vault edit vars.yml
+ansible-vault edit group_vars/docker_servers/vault.yml
 ```
 View an existing encrypted file:
 
 ```bash
-ansible-vault view vars.yml
+ansible-vault view group_vars/docker_servers/vault.yml
 ```
 
 Run the playbook with a vault password prompt:

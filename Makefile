@@ -21,7 +21,14 @@ sysctl:
 	sudo sysctl -w vm.max_map_count=262144
 
 certs:
-	cd $(COMPOSE_DIR) && $(COMPOSE) -f $(CERTS_COMPOSE) run --rm generator
+	@if [ ! -f $(COMPOSE_DIR)/config/wazuh_indexer_ssl_certs/admin.pem ]; then \
+		echo "Removing dummy directories if they exist..."; \
+		cd $(COMPOSE_DIR) && $(COMPOSE) -f $(CERTS_COMPOSE) run --rm --entrypoint "sh -c 'rm -rf /certificates/*.pem'" generator; \
+		echo "Generating indexer certificates..."; \
+		cd $(COMPOSE_DIR) && $(COMPOSE) -f $(CERTS_COMPOSE) run --rm generator; \
+	else \
+		echo "Indexer certificates already exist. Skipping generation."; \
+	fi
 
 up:
 	cd $(COMPOSE_DIR) && $(COMPOSE) up -d
